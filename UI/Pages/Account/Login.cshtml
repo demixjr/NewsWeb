@@ -1,0 +1,254 @@
+﻿@page
+@model NewsPortal.Pages.Account.LoginModel
+
+@{
+    ViewData["Title"] = "Login";
+    Layout = "_AuthLayout"; // Special layout for auth pages
+}
+
+@section Styles {
+    <style>
+        .auth-container {
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-card {
+            max-width: 400px;
+            width: 100%;
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .auth-header {
+            border-radius: 15px 15px 0 0;
+            padding: 2rem 1rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .auth-logo {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-control:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+        }
+
+        .btn-auth {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            padding: 0.75rem;
+            font-weight: 600;
+        }
+
+            .btn-auth:hover {
+                background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+                transform: translateY(-1px);
+                box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            }
+
+        .auth-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #6c757d;
+        }
+
+        .demo-accounts {
+            background-color: #f8f9fa;
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+    </style>
+}
+
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-header text-white text-center">
+            <div class="auth-logo">
+                <i class="fas fa-newspaper"></i>
+            </div>
+            <h2>Welcome Back</h2>
+            <p class="mb-0">Sign in to your account</p>
+        </div>
+
+        <div class="card-body p-4">
+            <form method="post" id="loginForm">
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                @if (TempData["SuccessMessage"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        <i class="fas fa-check-circle me-2"></i>@TempData["SuccessMessage"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+
+                <div class="mb-3">
+                    <label asp-for="Input.Username" class="form-label">
+                        <i class="fas fa-user me-1"></i>Username
+                    </label>
+                    <input asp-for="Input.Username" class="form-control"
+                           placeholder="Enter your username" autocomplete="username" />
+                    <span asp-validation-for="Input.Username" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Input.Password" class="form-label">
+                        <i class="fas fa-lock me-1"></i>Password
+                    </label>
+                    <div class="input-group">
+                        <input asp-for="Input.Password" class="form-control"
+                               placeholder="Enter your password"
+                               id="passwordInput" autocomplete="current-password" />
+                        <button class="btn btn-outline-secondary" type="button"
+                                id="togglePassword">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <span asp-validation-for="Input.Password" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3 form-check">
+                    <input asp-for="Input.RememberMe" class="form-check-input" />
+                    <label asp-for="Input.RememberMe" class="form-check-label">
+                        Remember me
+                    </label>
+                </div>
+
+                <div class="d-grid mb-3">
+                    <button type="submit" class="btn btn-auth text-white">
+                        <i class="fas fa-sign-in-alt me-2"></i>Sign In
+                    </button>
+                </div>
+
+                <div class="text-center mb-3">
+                    <a href="/" class="text-decoration-none">
+                        <i class="fas fa-arrow-left me-1"></i>Back to Home
+                    </a>
+                </div>
+            </form>
+
+            <!-- Demo Accounts -->
+            <div class="demo-accounts">
+                <h6 class="text-center mb-3">
+                    <i class="fas fa-info-circle me-1"></i>Demo Accounts
+                </h6>
+                <div class="row g-2">
+                    <div class="col-6">
+                        <button class="btn btn-outline-primary btn-sm w-100"
+                                onclick="fillDemo('admin', 'admin123')">
+                            <small>Admin</small>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-success btn-sm w-100"
+                                onclick="fillDemo('author1', 'author123')">
+                            <small>Author 1</small>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-warning btn-sm w-100"
+                                onclick="fillDemo('author2', 'author123')">
+                            <small>Author 2</small>
+                        </button>
+                    </div>
+                    <div class="col-6">
+                        <button class="btn btn-outline-info btn-sm w-100"
+                                onclick="fillDemo('user1', 'user123')">
+                            <small>User</small>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="auth-footer">
+                <small>
+                    Don't have an account?
+                    <a href="#" class="text-primary text-decoration-none"
+                       data-bs-toggle="modal" data-bs-target="#registerModal">
+                        Contact Administrator
+                    </a>
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Register Info Modal -->
+<div class="modal fade" id="registerModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-plus me-2"></i>Account Registration
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-users fa-3x text-primary"></i>
+                </div>
+                <p>
+                    For security reasons, new user accounts can only be created by administrators.
+                    Please contact your system administrator to request an account.
+                </p>
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Administrators can add users through the Admin Panel.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <a href="/Admin/Dashboard" class="btn btn-primary">
+                    <i class="fas fa-cog me-1"></i>Admin Panel
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        // Toggle password visibility
+        $('#togglePassword').click(function() {
+            const passwordInput = $('#passwordInput');
+            const type = passwordInput.attr('type') === 'password' ? 'text' : 'password';
+            passwordInput.attr('type', type);
+            $(this).find('i').toggleClass('fa-eye fa-eye-slash');
+        });
+
+        // Fill demo account credentials
+        function fillDemo(username, password) {
+            $('#Input_Username').val(username);
+            $('#passwordInput').val(password);
+            $('#loginForm').submit();
+        }
+
+        // Check username availability
+        $('#Input_Username').on('blur', function() {
+            const username = $(this).val();
+            if (username.length >= 3) {
+                $.get(`/Account/Login?handler=checkusername&username=${username}`, function(data) {
+                    if (!data.available) {
+                        $('#Input_Username').addClass('is-valid').removeClass('is-invalid');
+                    } else {
+                        $('#Input_Username').addClass('is-invalid').removeClass('is-valid');
+                    }
+                });
+            }
+        });
+
+        // Auto-focus username field
+        $(document).ready(function() {
+            $('#Input_Username').focus();
+        });
+    </script>
+}

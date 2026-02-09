@@ -1,0 +1,232 @@
+﻿@page
+@model NewsPortal.Pages.IndexModel
+
+@{
+    ViewData["Title"] = "Latest News";
+}
+
+<div class="row fade-in">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="mb-0">
+                <i class="fas fa-newspaper text-primary me-2"></i>@ViewData["Title"]
+            </h2>
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Author"))
+            {
+                <a href="/News/Create" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>Create News
+                </a>
+            }
+        </div>
+
+        <!-- Search Results Info -->
+        @if (!string.IsNullOrEmpty(Model.SearchQuery))
+        {
+            <div class="alert alert-info mb-4">
+                <i class="fas fa-search me-2"></i>
+                Search results for: <strong>"@Model.SearchQuery"</strong>
+                <a href="/" class="btn btn-outline-info btn-sm ms-3">
+                    Clear Search
+                </a>
+            </div>
+        }
+
+        <!-- Filter/Sort Controls -->
+        <div class="card mb-4">
+            <div class="card-body py-2">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <div class="input-group input-group-sm">
+                            <span class="input-group-text">
+                                <i class="fas fa-filter"></i>
+                            </span>
+                            <select class="form-select" id="categoryFilter" onchange="filterNewsByCategory(this.value)">
+                                <option value="">All Categories</option>
+                                @foreach (var category in Model.Categories)
+                                {
+                                    <option value="@category.Id"
+                                            selected="@(Model.CategoryId == category.Id)">
+                                        @category.Name
+                                    </option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="btn-group btn-group-sm float-md-end" role="group">
+                            <button type="button" class="btn btn-outline-primary sort-btn active"
+                                    data-sort="date_desc" onclick="sortNews('date_desc')">
+                                <i class="fas fa-clock me-1"></i>Newest
+                            </button>
+                            <button type="button" class="btn btn-outline-primary sort-btn"
+                                    data-sort="date_asc" onclick="sortNews('date_asc')">
+                                <i class="fas fa-history me-1"></i>Oldest
+                            </button>
+                            <button type="button" class="btn btn-outline-primary sort-btn"
+                                    data-sort="popular" onclick="sortNews('popular')">
+                                <i class="fas fa-fire me-1"></i>Popular
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="text-center my-5" style="display: none;">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="text-muted mt-2">Loading news...</p>
+        </div>
+
+        <!-- News Container -->
+        <div id="newsContainer">
+            @await Html.PartialAsync("_NewsListPartial", Model.NewsList)
+        </div>
+
+        <!-- Load More Button (for AJAX pagination) -->
+        @if (Model.NewsList.Count >= 6)
+        {
+            <div class="text-center mt-4">
+                <button id="loadMoreBtn" class="btn btn-outline-primary" onclick="loadMoreNews()">
+                    <i class="fas fa-arrow-down me-2"></i>Load More News
+                </button>
+                <div id="loadingMore" style="display: none;">
+                    <div class="spinner-border spinner-border-sm text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- No Results Message -->
+        @if (!Model.NewsList.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No news found</h4>
+                <p class="text-muted">Check back later for new content.</p>
+                @if (User.IsInRole("Admin") || User.IsInRole("Author"))
+                {
+                    <a href="/News/Create" class="btn btn-primary mt-2">
+                        <i class="fas fa-plus me-1"></i>Create First News
+                    </a>
+                }
+            </div>
+        }
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+        <!-- Categories Card -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-list me-2"></i>Categories
+                </h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="list-group list-group-flush">
+                    <a href="/" class="list-group-item list-group-item-action @(Model.CategoryId == null ? "active" : "")">
+                        <div class="d-flex w-100 justify-content-between">
+                            <span>
+                                <i class="fas fa-globe me-2"></i>All News
+                            </span>
+                            <span class="badge bg-primary rounded-pill">@Model.TotalNewsCount</span>
+                        </div>
+                    </a>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <a href="/News/Category/@category.Id"
+                           class="list-group-item list-group-item-action @(Model.CategoryId == category.Id ? "active" : "")">
+                            <div class="d-flex w-100 justify-content-between">
+                                <span>
+                                    <i class="fas fa-folder me-2"></i>@category.Name
+                                </span>
+                                <span class="badge bg-secondary rounded-pill">@category.News.Count</span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Popular News -->
+        @{
+            var popularNews = Model.NewsList
+            .Where(n => n.Views > 100)
+            .OrderByDescending(n => n.Views)
+            .Take(5)
+            .ToList();
+        }
+
+        @if (popularNews.Any())
+        {
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-fire me-2"></i>Trending Now
+                    </h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="list-group list-group-flush">
+                        @foreach (var news in popularNews)
+                        {
+                            <a href="/News/Details/@news.Id" class="list-group-item list-group-item-action">
+                                <div class="d-flex w-100 justify-content-between align-items-start">
+                                    <div>
+                                        <h6 class="mb-1">@news.Title</h6>
+                                        <small class="text-muted">@news.Category?.Name</small>
+                                    </div>
+                                    <span class="badge bg-success rounded-pill">
+                                        <i class="fas fa-eye"></i> @news.Views
+                                    </span>
+                                </div>
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- Statistics Card -->
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>Statistics
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-6 mb-3">
+                        <div class="display-6 text-primary">@Model.TotalNewsCount</div>
+                        <small class="text-muted">Total News</small>
+                    </div>
+                    <div class="col-6 mb-3">
+                        <div class="display-6 text-success">@Model.Categories.Count</div>
+                        <small class="text-muted">Categories</small>
+                    </div>
+                </div>
+                <hr>
+                <small class="text-muted">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Last updated: @DateTime.Now.ToString("MMM dd, yyyy HH:mm")
+                </small>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            // Initialize view count for each news item
+            @foreach (var news in Model.NewsList)
+            {
+                    <text>incrementViews(@news.Id);</text>
+            }
+        });
+    </script>
+}

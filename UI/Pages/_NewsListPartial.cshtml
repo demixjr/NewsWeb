@@ -1,0 +1,70 @@
+﻿@model List<BLL.DTO.NewsDTO>
+
+@if (Model.Any())
+{
+    <div class="row">
+        @foreach (var news in Model)
+        {
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card news-card h-100">
+                    <div class="card-img-container">
+                        <!-- Placeholder for news image -->
+                        <div class="card-img-top bg-secondary d-flex align-items-center justify-content-center text-white" style="height: 200px;">
+                            <i class="fas fa-newspaper fa-3x"></i>
+                        </div>
+                    </div>
+                    <div class="card-body d-flex flex-column">
+                        <div class="d-flex justify-content-between align-items-start mb-2">
+                            <span class="badge bg-primary badge-category">
+                                @news.Category?.Name
+                            </span>
+                            <small class="text-muted">
+                                @news.Date.ToString("MMM dd")
+                            </small>
+                        </div>
+
+                        <h5 class="card-title flex-grow-1">
+                            <a href="/News/Details/@news.Id" class="text-decoration-none text-dark">
+                                @news.Title
+                            </a>
+                        </h5>
+
+                        <p class="card-text flex-grow-1">
+                            @if (news.Description.Length > 150)
+                            {
+                                @news.Description.Substring(0, 150)
+                                <text>...</text>
+                            }
+                            else
+                            {
+                                @news.Description
+                            }
+                        </p>
+
+                        <div class="d-flex justify-content-between align-items-center mt-auto">
+                            <div>
+                                <small class="text-muted me-3">
+                                    <i class="fas fa-eye"></i> @news.Views
+                                </small>
+                                <small class="text-muted">
+                                    <i class="fas fa-user"></i> @news.Author?.Username
+                                </small>
+                            </div>
+                            <a href="/News/Details/@news.Id" class="btn btn-sm btn-outline-primary">
+                                Read <i class="fas fa-arrow-right ms-1"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}
+else
+{
+    <div class="text-center py-5">
+        <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+        <h4 class="text-muted">No news found</h4>
+        <p class="text-muted">Try changing your filters or check back later.</p>
+    </div>
+}
