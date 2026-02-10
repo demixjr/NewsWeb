@@ -6,7 +6,7 @@ namespace BLL.Interfaces
 {
     public interface ICategoryService
     {
-        bool AddCategory(IRepository<Category> repository, CategoryDTO categoryDTO);
-        List<CategoryDTO> GetAllCategories(IRepository<Category> repository);
+        bool AddCategory(CategoryDTO categoryDTO);
+        List<CategoryDTO> GetAllCategories();
     }
 }

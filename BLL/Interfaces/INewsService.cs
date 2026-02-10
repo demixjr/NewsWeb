@@ -6,18 +6,18 @@ namespace BLL.Interfaces
 {
     public interface INewsService
     {
-        bool AddNews(IRepository<News> repository, NewsDTO newsDTO);
+        bool AddNews(NewsDTO newsDTO);
 
-        bool EditNews( IRepository<News> repository, NewsDTO newsDTO, int currentUserId);
+        bool EditNews(NewsDTO newsDTO, int currentUserId);
 
-        bool DeleteNews(IRepository<News> repository, int newsId, int currentUserId);
-        NewsDTO? GetById(IRepository<News> repository, int id);
-        List<NewsDTO> GetAll(IRepository<News> repository);
+        bool DeleteNews(int newsId, int currentUserId);
+        NewsDTO? GetById(int id);
+        List<NewsDTO> GetAll();
 
-        List<NewsDTO> GetByCategory(IRepository<News> repository,int categoryId);
+        List<NewsDTO> GetByCategory(int categoryId);
 
-        List<NewsDTO> GetSortedByDate(IRepository<News> repository, bool descending = true);
+        List<NewsDTO> GetSortedByDate(bool descending = true);
 
-        List<NewsDTO> GetPopular(IRepository<News> repository, int minViews);
+        List<NewsDTO> GetPopular(int minViews);
     }
 }
