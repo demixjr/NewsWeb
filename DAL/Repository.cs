@@ -5,10 +5,10 @@ namespace DAL
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private DbContext _context;
+        private NewsDbContext _context;
         private DbSet<T> _dbSet;
 
-        public Repository(DbContext context)
+        public Repository(NewsDbContext context)
         {
             _context = context;
             _dbSet = context.Set<T>();

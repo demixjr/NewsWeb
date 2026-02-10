@@ -11,6 +11,7 @@ namespace DAL
         void Remove(T entity);
         IEnumerable<T> FindAll(Func<T, bool> predicate);
         IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes);
+        void SaveChanges();
     }
 
 }
