@@ -1,0 +1,35 @@
+using BLL.DTO;
+using BLL.Interfaces;
+using Microsoft.AspNetCore.Mvc;
+
+namespace NewsWebsite.Pages
+{
+    public class IndexModel : BasePageModel
+    {
+        private readonly INewsService _newsService;
+
+        public IndexModel(INewsService newsService)
+        {
+            _newsService = newsService;
+        }
+
+        public List<NewsDTO> NewsList { get; set; } = new();
+
+        public void OnGet()
+        {
+            try { NewsList = _newsService.GetSortedByDate(descending: true); }
+            catch (Exception ex) { TempData["Error"] = ex.Message; }
+        }
+
+        public IActionResult OnPostDelete(int id)
+        {
+            var check = RequireAdminRole();
+            if (check != null) return check;
+
+            try { _newsService.DeleteNews(id, CurrentUserId!.Value); }
+            catch (Exception ex) { TempData["Error"] = ex.Message; }
+
+            return RedirectToPage();
+        }
+    }
+}
