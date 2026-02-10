@@ -10,23 +10,27 @@ namespace BLL.Services
     public class NewsService : INewsService
     {
         private readonly IMapper mapper;
+        private readonly IRepository<News> repository;
 
-        public NewsService(IMapper mapper)
+        public NewsService(IMapper mapper, IRepository<News> repository)
         {
             this.mapper = mapper;
+            this.repository = repository;
         }
 
-        public bool AddNews(IRepository<News> repository, NewsDTO newsDTO)
+        public bool AddNews(NewsDTO newsDTO)
         {
             var news = mapper.Map<News>(newsDTO);
             news.Date = DateTime.Now;
             news.Views = 0;
 
             repository.Add(news);
+            repository.SaveChanges();
+
             return true;
         }
 
-        public bool EditNews(IRepository<News> repository, NewsDTO newsDTO, int currentUserId)
+        public bool EditNews(NewsDTO newsDTO, int currentUserId)
         {
             var news = repository.Find(n => n.Id == newsDTO.Id);
 
@@ -41,10 +45,12 @@ namespace BLL.Services
             news.CategoryId = newsDTO.CategoryId;
 
             repository.Update(news);
+            repository.SaveChanges();
+
             return true;
         }
 
-        public bool DeleteNews(IRepository<News> repository, int newsId, int currentUserId)
+        public bool DeleteNews(int newsId, int currentUserId)
         {
             var news = repository.Find(n => n.Id == newsId);
             if (news == null)
@@ -54,10 +60,12 @@ namespace BLL.Services
                 throw new ValidationException("Видаляти може тільки автор");
 
             repository.Remove(news);
+            repository.SaveChanges();
+
             return true;
         }
 
-        public NewsDTO? GetById(IRepository<News> repository, int id)
+        public NewsDTO? GetById(int id)
         {
             var news = repository.Find(n => n.Id == id);
             if (news == null)
@@ -65,17 +73,17 @@ namespace BLL.Services
 
             news.Views++;
             repository.Update(news);
+            repository.SaveChanges();
+
             return mapper.Map<NewsDTO>(news);
         }
 
-        public List<NewsDTO> GetAll(IRepository<News> repository)
+        public List<NewsDTO> GetAll()
         {
             return mapper.Map<List<NewsDTO>>(repository.GetAll());
         }
 
-        public List<NewsDTO> GetByCategory(
-            IRepository<News> repository,
-            int categoryId)
+        public List<NewsDTO> GetByCategory(int categoryId)
         {
             var news = repository
                 .GetAll()
@@ -84,7 +92,7 @@ namespace BLL.Services
             return mapper.Map<List<NewsDTO>>(news);
         }
 
-        public List<NewsDTO> GetSortedByDate(IRepository<News> repository, bool descending = true)
+        public List<NewsDTO> GetSortedByDate(bool descending = true)
         {
             var news = descending
                 ? repository.GetAll().OrderByDescending(n => n.Date)
@@ -93,7 +101,7 @@ namespace BLL.Services
             return mapper.Map<List<NewsDTO>>(news);
         }
 
-        public List<NewsDTO> GetPopular(IRepository<News> repository, int minViews)
+        public List<NewsDTO> GetPopular(int minViews)
         {
             var news = repository
                 .GetAll()
