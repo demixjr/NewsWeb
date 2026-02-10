@@ -11,7 +11,7 @@ namespace BLL
 
             CreateMap<User, UserDTO>().ReverseMap();
             CreateMap<Category, CategoryDTO>().ReverseMap();
-            CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<News, NewsDTO>().ReverseMap();
         }
     }
 }

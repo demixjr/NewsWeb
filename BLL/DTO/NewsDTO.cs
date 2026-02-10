@@ -1,5 +1,4 @@
-﻿using DAL.Models;
-
+﻿
 namespace BLL.DTO
 {
     public class NewsDTO
@@ -14,6 +13,6 @@ namespace BLL.DTO
         public CategoryDTO? Category { get; set; }
 
         public int AuthorId { get; set; }
-        public User? Author { get; set; }
+        public UserDTO? Author { get; set; }
     }
 }
