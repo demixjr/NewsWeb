@@ -1,0 +1,100 @@
+﻿<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] — Вісник</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Source+Serif+4:ital,opsz,wght@0,8..60,300;0,8..60,400;0,8..60,600;1,8..60,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+
+    <!-- TOP BAR -->
+    <div class="topbar">
+        <div class="topbar-inner">
+            <span class="topbar-date" id="topbar-date"></span>
+            <span class="topbar-divider">|</span>
+            <span class="topbar-brand">ВІСНИК</span>
+            <span class="topbar-divider">|</span>
+            <div class="topbar-auth">
+                @if (Context.Session.GetString("CurrentUser") != null)
+                {
+                    var user = System.Text.Json.JsonSerializer
+                    .Deserialize<BLL.DTO.UserDTO>(Context.Session.GetString("CurrentUser")!);
+                    <span class="topbar-user">
+                        <span class="topbar-username">@user?.Username</span>
+                        <span class="topbar-role role-@user?.Role?.ToLower()">@user?.Role</span>
+                    </span>
+                    <a href="/Users/Logout" class="topbar-link">Вийти</a>
+                }
+                else
+                {
+                    <a href="/Users/Login" class="topbar-link">Увійти</a>
+                    <span class="topbar-divider-sm">/</span>
+                    <a href="/Users/Register" class="topbar-link">Реєстрація</a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <!-- MASTHEAD -->
+    <header class="masthead">
+        <a href="/" class="masthead-logo">ВІСНИК</a>
+        <p class="masthead-tagline">Новини. Аналіз. Думки.</p>
+    </header>
+
+    <!-- CATEGORY NAV -->
+    <nav class="cat-nav" id="cat-nav">
+        <div class="cat-nav-inner">
+            <a href="/" class="cat-link @(ViewData["ActiveCategory"] == null ? "cat-link--active" : "")">
+                Всі новини
+            </a>
+            @if (ViewData["Categories"] is List<BLL.DTO.CategoryDTO> categories)
+            {
+                foreach (var cat in categories)
+                {
+                    var isActive = ViewData["ActiveCategory"]?.ToString() == cat.Id.ToString();
+                    <a href="/News?categoryId=@cat.Id"
+                       class="cat-link @(isActive ? "cat-link--active" : "")">
+                        @cat.Name
+                    </a>
+                }
+            }
+        </div>
+    </nav>
+    <div class="cat-nav-border"></div>
+
+    <!-- FLASH MESSAGES -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="flash flash--success">@TempData["Success"]</div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="flash flash--error">@TempData["Error"]</div>
+    }
+
+    <!-- PAGE CONTENT -->
+    <main class="site-main">
+        @RenderBody()
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <span class="footer-brand">ВІСНИК</span>
+            <nav class="footer-nav">
+                <a href="/">Головна</a>
+                <a href="/News">Архів</a>
+                <a href="/Categories">Категорії</a>
+            </nav>
+            <span class="footer-copy">&copy; @DateTime.Now.Year</span>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

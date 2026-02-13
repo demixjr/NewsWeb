@@ -1,0 +1,74 @@
+﻿@page "{id:int}"
+@model NewsWebsite.Pages.News.DetailsModel
+@{
+    ViewData["Title"] = Model.NewsItem?.Title ?? "Стаття";
+}
+
+@if (Model.NewsItem == null)
+{
+    <div class="empty-state">
+        <div class="empty-state__title">Статтю не знайдено</div>
+        <a asp-page="Index" class="btn btn-ghost" style="margin-top:1rem">← Назад</a>
+    </div>
+}
+else
+{
+    <div class="breadcrumb">
+        <a asp-page="/Index">Головна</a>
+        <span class="breadcrumb__sep">›</span>
+        <a asp-page="/News/Index" asp-route-categoryId="@Model.NewsItem.CategoryId">
+            @Model.NewsItem.Category?.Name
+        </a>
+        <span class="breadcrumb__sep">›</span>
+        <span>@Model.NewsItem.Title</span>
+    </div>
+
+    @if (Model.CanEdit || Model.CanDelete)
+    {
+        <div class="article-actions">
+            @if (Model.CanEdit)
+            {
+                <a asp-page="Edit" asp-route-id="@Model.NewsItem.Id" class="btn btn-ghost btn-small">Редагувати</a>
+            }
+            @if (Model.CanDelete)
+            {
+                <button class="btn btn-danger btn-small" data-modal-open="del-modal">Видалити</button>
+            }
+        </div>
+    }
+
+    <article>
+        <header class="article-header">
+            <a asp-page="/News/Index" asp-route-categoryId="@Model.NewsItem.CategoryId"
+               class="article-cat">@Model.NewsItem.Category?.Name</a>
+            <h1 class="article-title">@Model.NewsItem.Title</h1>
+            <div class="article-byline">
+                <span>Автор: <strong>@Model.NewsItem.Author?.Username</strong></span>
+                <span>@Model.NewsItem.Date.ToString("dd MMMM yyyy, HH:mm")</span>
+                <span>&#128065; @Model.NewsItem.Views переглядів</span>
+            </div>
+        </header>
+        <div class="article-body">
+            <p>@Model.NewsItem.Description</p>
+        </div>
+    </article>
+
+    <hr class="divider" style="margin-top:3rem">
+    <a asp-page="Index" class="btn btn-ghost btn-small">← До списку</a>
+
+    @if (Model.CanDelete)
+    {
+        <div class="modal-overlay" id="del-modal">
+            <div class="modal-box">
+                <div class="modal-title">Видалити статтю?</div>
+                <div class="modal-body">Цю дію неможливо скасувати.</div>
+                <div class="modal-actions">
+                    <button class="btn btn-ghost" data-modal-close>Скасувати</button>
+                    <form method="post">
+                        <button type="submit" class="btn btn-danger">Видалити</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+}

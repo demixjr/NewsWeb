@@ -1,0 +1,69 @@
+﻿@page
+@model NewsWebsite.Pages.News.IndexModel
+@{
+    ViewData["Title"] = Model.CategoryName ?? "Всі новини";
+    ViewData["ActiveCategory"] = Model.CategoryId?.ToString();
+}
+
+<div class="page-header">
+    <h1>@(Model.CategoryName ?? "Всі новини")</h1>
+    @if (Model.CanPublish)
+    {
+        <a asp-page="Create" class="btn btn-primary btn-small">+ Нова стаття</a>
+    }
+</div>
+
+@if (Model.NewsList.Any())
+{
+    <div class="news-list">
+        @foreach (var news in Model.NewsList)
+        {
+            <article class="news-item">
+                <div class="news-item__title">
+                    <a asp-page="Details" asp-route-id="@news.Id">@news.Title</a>
+                </div>
+                <div class="news-item__meta">
+                    <a asp-page="/News/Index" asp-route-categoryId="@news.CategoryId"
+                       class="news-item__cat">@news.Category?.Name</a>
+                    <span class="news-item__views">&#128065; @news.Views</span>
+                    <span class="news-item__meta-sep">|</span>
+                    <span>@news.Date.ToString("dd.MM.yyyy")</span>
+                    <span class="news-item__meta-sep">|</span>
+                    <span>@news.Author?.Username</span>
+                </div>
+                <div class="news-item__actions">
+                    @if (Model.CanEdit)
+                    {
+                        <a asp-page="Edit" asp-route-id="@news.Id" class="btn btn-ghost btn-small">Ред.</a>
+                    }
+                    @if (Model.CanDelete)
+                    {
+                        <button class="btn btn-danger btn-small" data-modal-open="del-@news.Id">Вид.</button>
+                    }
+                </div>
+            </article>
+
+            @if (Model.CanDelete)
+            {
+                <div class="modal-overlay" id="del-@news.Id">
+                    <div class="modal-box">
+                        <div class="modal-title">Видалити статтю?</div>
+                        <div class="modal-body">«@news.Title» — цю дію неможливо скасувати.</div>
+                        <div class="modal-actions">
+                            <button class="btn btn-ghost" data-modal-close>Скасувати</button>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@news.Id">
+                                <button type="submit" class="btn btn-danger">Видалити</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-state__title">В цій категорії поки немає новин</div>
+    </div>
+}
