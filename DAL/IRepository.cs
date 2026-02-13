@@ -4,14 +4,13 @@ namespace DAL
 {
     public interface IRepository<T> where T : class
     {
-        T Get(int id, params Expression<Func<T, object>>[] includes);
-        void Add(T entity);
-        void Update(T entity);
-        T Find(Expression<Func<T, bool>> predicate);
-        void Remove(T entity);
-        IEnumerable<T> FindAll(Func<T, bool> predicate);
-        IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes);
-        void SaveChanges();
+        Task<T?> Get(int id);
+        IQueryable<T> GetAll();
+        Task<T?> Find(Expression<Func<T, bool>> predicate);
+        IQueryable<T> FindAll(Expression<Func<T, bool>> predicate);
+        Task Add(T entity);
+        Task Update(T entity);
+        Task Remove(T entity);
+        Task SaveChanges();
     }
-
 }

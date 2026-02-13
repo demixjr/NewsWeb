@@ -19,35 +19,48 @@ namespace NewsWebsite.Pages.News
         public List<NewsDTO> NewsList { get; set; } = new();
         public string? CategoryName { get; set; }
 
-        [Microsoft.AspNetCore.Mvc.BindProperty(SupportsGet = true)]
+        [BindProperty(SupportsGet = true)]
         public int? CategoryId { get; set; }
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
             try
             {
                 if (CategoryId.HasValue)
                 {
-                    NewsList = _newsService.GetByCategory(CategoryId.Value);
-                    var cat = _categoryService.GetAllCategories()
-                                .FirstOrDefault(c => c.Id == CategoryId.Value);
+                    // Асинхронно отримуємо новини по категорії
+                    NewsList = await _newsService.GetByCategory(CategoryId.Value);
+
+                    // Асинхронно отримуємо всі категорії і знаходимо потрібну
+                    var categories = await _categoryService.GetAllCategories();
+                    var cat = categories.FirstOrDefault(c => c.Id == CategoryId.Value);
                     CategoryName = cat?.Name;
                 }
                 else
                 {
-                    NewsList = _newsService.GetSortedByDate(descending: true);
+                    NewsList = await _newsService.GetSortedByDate(descending: true);
                 }
             }
-            catch (Exception ex) { TempData["Error"] = ex.Message; }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                NewsList = new();
+            }
         }
 
-        public IActionResult OnPostDelete(int id)
+        public async Task<IActionResult> OnPostDeleteAsync(int id)
         {
             var check = RequireAdminRole();
             if (check != null) return check;
 
-            try { _newsService.DeleteNews(id, CurrentUserId!.Value); }
-            catch (Exception ex) { TempData["Error"] = ex.Message; }
+            try
+            {
+                await _newsService.DeleteNews(id, CurrentUserId!.Value);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
 
             return RedirectToPage();
         }

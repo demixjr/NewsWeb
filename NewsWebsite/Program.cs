@@ -5,16 +5,19 @@ using BLL.Services;
 using DAL;
 using DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using NewsWebsite.Filters;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container
 builder.Services.AddRazorPages();
 
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
 // Configure DbContext
 builder.Services.AddDbContext<NewsDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"))
+);
 
 // Register AutoMapper
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfile), typeof(Program));
@@ -39,13 +42,6 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddHttpContextAccessor();
 
-builder.Services.AddRazorPages()
-    .AddMvcOptions(opts =>
-    {
-        opts.Filters.AddService<CategoryNavFilter>();
-    });
-
-builder.Services.AddScoped<NewsWebsite.Filters.CategoryNavFilter>();
 
 var app = builder.Build();
 

@@ -1,23 +1,17 @@
 ﻿using BLL.DTO;
-using DAL;
-using DAL.Models;
 
 namespace BLL.Interfaces
 {
     public interface INewsService
     {
-        bool AddNews(NewsDTO newsDTO);
+        Task<bool> AddNews(NewsDTO newsDTO);
+        Task<bool> EditNews(NewsDTO newsDTO, int currentUserId);
+        Task<bool> DeleteNews(int newsId, int currentUserId);
 
-        bool EditNews(NewsDTO newsDTO, int currentUserId);
-
-        bool DeleteNews(int newsId, int currentUserId);
-        NewsDTO? GetById(int id);
-        List<NewsDTO> GetAll();
-
-        List<NewsDTO> GetByCategory(int categoryId);
-
-        List<NewsDTO> GetSortedByDate(bool descending = true);
-
-        List<NewsDTO> GetPopular(int minViews);
+        Task<NewsDTO?> GetById(int id);
+        Task<List<NewsDTO>> GetAll();
+        Task<List<NewsDTO>> GetByCategory(int categoryId);
+        Task<List<NewsDTO>> GetSortedByDate(bool descending = true, int page = 1, int pageSize = 20);
+        Task<List<NewsDTO>> GetPopular(int minViews);
     }
 }

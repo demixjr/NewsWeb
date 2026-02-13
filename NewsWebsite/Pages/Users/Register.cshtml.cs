@@ -14,17 +14,27 @@ namespace NewsWebsite.Pages.Users
 
         public IActionResult OnGet()
         {
-            if (IsAuthenticated) return RedirectToPage("/Index");
+            if (!IsAuthenticated)
+            {
+                return RedirectToPage("/Users/Login");
+            }
+
+            if (!IsAdmin)
+            {
+                TempData["Error"] = "Тільки адміністратор може реєструвати нових авторів.";
+                return RedirectToPage("/Index");
+            }
+
             return Page();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPost()
         {
             if (!ModelState.IsValid) return Page();
 
             try
             {
-                _userService.AddUser(new UserDTO { Username = Input.Username, Role = Input.Role });
+                await _userService.AddUser(new UserDTO { Username = Input.Username, Role = Input.Role });
                 TempData["Success"] = "Реєстрація успішна! Тепер увійдіть.";
                 return RedirectToPage("Login");
             }

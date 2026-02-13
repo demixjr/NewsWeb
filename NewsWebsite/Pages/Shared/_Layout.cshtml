@@ -23,19 +23,27 @@
                 {
                     var user = System.Text.Json.JsonSerializer
                     .Deserialize<BLL.DTO.UserDTO>(Context.Session.GetString("CurrentUser")!);
+
                     <span class="topbar-user">
                         <span class="topbar-username">@user?.Username</span>
                         <span class="topbar-role role-@user?.Role?.ToLower()">@user?.Role</span>
                     </span>
+
+                    @if (user?.Role == "Admin")
+                    {
+                        <span class="topbar-divider">|</span>
+                        <a href="/Users/Register" class="topbar-link">Додати автора</a>
+                    }
+
+                    <span class="topbar-divider">|</span>
                     <a href="/Users/Logout" class="topbar-link">Вийти</a>
                 }
                 else
                 {
                     <a href="/Users/Login" class="topbar-link">Увійти</a>
-                    <span class="topbar-divider-sm">/</span>
-                    <a href="/Users/Register" class="topbar-link">Реєстрація</a>
                 }
             </div>
+
         </div>
     </div>
 

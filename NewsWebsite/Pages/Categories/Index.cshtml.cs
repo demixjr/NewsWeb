@@ -17,28 +17,43 @@ namespace NewsWebsite.Pages.Categories
         public List<CategoryDTO> Categories { get; set; } = new();
         [BindProperty] public InputModel Input { get; set; } = new();
 
-        public void OnGet() => Load();
+        public async Task OnGetAsync() => await LoadAsync();
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             var check = RequireAdminRole();
             if (check != null) return check;
 
-            if (!ModelState.IsValid) { Load(); return Page(); }
+            if (!ModelState.IsValid)
+            {
+                await LoadAsync();
+                return Page();
+            }
 
             try
             {
-                _categoryService.AddCategory(new CategoryDTO { Name = Input.Name });
+                await _categoryService.AddCategory(new CategoryDTO { Name = Input.Name });
                 TempData["Success"] = "Категорію створено.";
                 return RedirectToPage();
             }
-            catch (Exception ex) { TempData["Error"] = ex.Message; Load(); return Page(); }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                await LoadAsync();
+                return Page();
+            }
         }
 
-        private void Load()
+        private async Task LoadAsync()
         {
-            try { Categories = _categoryService.GetAllCategories(); }
-            catch { Categories = new(); }
+            try
+            {
+                Categories = await _categoryService.GetAllCategories();
+            }
+            catch
+            {
+                Categories = new();
+            }
         }
 
         public class InputModel

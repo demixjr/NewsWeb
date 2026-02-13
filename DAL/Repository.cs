@@ -5,8 +5,8 @@ namespace DAL
 {
     public class Repository<T> : IRepository<T> where T : class
     {
-        private NewsDbContext _context;
-        private DbSet<T> _dbSet;
+        private readonly NewsDbContext _context;
+        private readonly DbSet<T> _dbSet;
 
         public Repository(NewsDbContext context)
         {
@@ -14,57 +14,47 @@ namespace DAL
             _dbSet = context.Set<T>();
         }
 
-        public T Get(int id, params Expression<Func<T, object>>[] includes)
+        public async Task<T?> Get(int id)
         {
-            IQueryable<T> query = _dbSet;
-
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
-
-            return query.FirstOrDefault(e => EF.Property<int>(e, "Id") == id);
+            return await _dbSet.FindAsync(id);
         }
 
-        public IEnumerable<T> GetAll(params Expression<Func<T, object>>[] includes)
+        public IQueryable<T> GetAll()
         {
-            IQueryable<T> query = _dbSet;
-
-            foreach (var include in includes)
-            {
-                query = query.Include(include);
-            }
-
-            return query.ToList();
+            return _dbSet.AsNoTracking();
         }
 
-        public T Find(Expression<Func<T, bool>> predicate)
+        public async Task<T?> Find(Expression<Func<T, bool>> predicate)
         {
-            return _dbSet.FirstOrDefault(predicate);
-        }
-        public IEnumerable<T> FindAll(Func<T, bool> predicate)
-        {
-            return _dbSet.Where(predicate).ToList();
+            return await _dbSet.FirstOrDefaultAsync(predicate);
         }
 
-        public void Add(T entity)
+        public IQueryable<T> FindAll(Expression<Func<T, bool>> predicate)
+        {
+            return _dbSet.Where(predicate);
+        }
+
+        public Task Add(T entity)
         {
             _dbSet.Add(entity);
+            return Task.CompletedTask;
         }
 
-        public void Update(T entity)
+        public Task Update(T entity)
         {
             _context.Entry(entity).State = EntityState.Modified;
+            return Task.CompletedTask;
         }
 
-        public void Remove(T entity)
+        public Task Remove(T entity)
         {
             _dbSet.Remove(entity);
+            return Task.CompletedTask;
         }
 
-        public void SaveChanges()
+        public async Task SaveChanges()
         {
-            _context.SaveChanges();
+            await _context.SaveChangesAsync();
         }
     }
 }

@@ -21,12 +21,12 @@ namespace NewsWebsite.Pages.News
         [BindProperty] public InputModel Input { get; set; } = new();
         public SelectList CategorySelectList { get; set; } = null!;
 
-        public IActionResult OnGet(int id)
+        public async Task<IActionResult> OnGetAsync(int id)
         {
             var check = RequireAdminRole();
             if (check != null) return check;
 
-            var news = _newsService.GetById(id);
+            var news = await _newsService.GetById(id);
             if (news == null) return RedirectToPage("Index");
 
             Input = new InputModel
@@ -37,20 +37,24 @@ namespace NewsWebsite.Pages.News
                 CategoryId = news.CategoryId
             };
 
-            LoadCategories();
+            await LoadCategoriesAsync();
             return Page();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             var check = RequireAdminRole();
             if (check != null) return check;
 
-            if (!ModelState.IsValid) { LoadCategories(); return Page(); }
+            if (!ModelState.IsValid)
+            {
+                await LoadCategoriesAsync();
+                return Page();
+            }
 
             try
             {
-                _newsService.EditNews(new NewsDTO
+                await _newsService.EditNews(new NewsDTO
                 {
                     Id = Input.Id,
                     Title = Input.Title,
@@ -64,21 +68,24 @@ namespace NewsWebsite.Pages.News
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
-                LoadCategories();
+                await LoadCategoriesAsync();
                 return Page();
             }
         }
 
-        private void LoadCategories() =>
-            CategorySelectList = new SelectList(
-                _categoryService.GetAllCategories(), "Id", "Name", Input.CategoryId);
+        private async Task LoadCategoriesAsync()
+        {
+            var categories = await _categoryService.GetAllCategories();
+            CategorySelectList = new SelectList(categories, "Id", "Name", Input.CategoryId);
+        }
 
         public class InputModel
         {
             public int Id { get; set; }
 
             [Required(ErrorMessage = "Обов'язкове поле")]
-            [StringLength(200)] public string Title { get; set; } = string.Empty;
+            [StringLength(200)]
+            public string Title { get; set; } = string.Empty;
 
             [Required(ErrorMessage = "Обов'язкове поле")]
             public string Description { get; set; } = string.Empty;

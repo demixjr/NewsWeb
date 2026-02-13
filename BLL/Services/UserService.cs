@@ -4,45 +4,50 @@ using BLL.Interfaces;
 using DAL;
 using DAL.Models;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace BLL.Services
 {
     public class UserService : IUserService
     {
-        IMapper mapper;
-        IRepository<User> repository;
+        private readonly IMapper _mapper;
+        private readonly IRepository<User> _repository;
 
         public UserService(IMapper mapper, IRepository<User> repository)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _mapper = mapper;
+            _repository = repository;
         }
 
-        public bool AddUser(UserDTO userDTO)
+        public async Task<bool> AddUser(UserDTO userDTO)
         {
-            if (FindUserByUsername(userDTO.Username) != null)
+            if (await FindUserByUsername(userDTO.Username) != null)
                 throw new ValidationException("Такий користувач вже існує");
 
-            var user = mapper.Map<User>(userDTO);
-            repository.Add(user);
-            repository.SaveChanges();
+            var user = _mapper.Map<User>(userDTO);
+            await _repository.Add(user);
+            await _repository.SaveChanges();
 
             return true;
         }
 
-        public UserDTO FindUserByUsername(string? username)
+        public async Task<UserDTO?> FindUserByUsername(string? username)
         {
-            return mapper.Map<UserDTO>(repository.Find(c => c.Username == username));
-        }
-        public bool DeleteUser(UserDTO userDTO)
-        {
+            var user = await _repository.GetAll()
+                .FirstOrDefaultAsync(c => c.Username == username);
 
-            var user = repository.Find(u => u.Username == userDTO.Username);
+            return user == null ? null : _mapper.Map<UserDTO>(user);
+        }
+
+        public async Task<bool> DeleteUser(UserDTO userDTO)
+        {
+            var user = await _repository.Find(u => u.Username == userDTO.Username);
+
             if (user == null)
                 throw new Exception("Неможливо видалити користувача, оскільки його не знайдено в базі даних");
 
-            repository.Remove(user);
-            repository.SaveChanges();
+            await _repository.Remove(user);
+            await _repository.SaveChanges();
 
             return true;
         }

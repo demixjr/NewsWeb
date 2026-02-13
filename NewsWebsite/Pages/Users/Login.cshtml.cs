@@ -17,11 +17,13 @@ namespace NewsWebsite.Pages.Users
             return Page();
         }
 
-        public IActionResult OnPost()
+        // Асинхронний Post
+        public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
 
-            var user = _userService.FindUserByUsername(Input.Username);
+            var user = await _userService.FindUserByUsername(Input.Username);
+
             if (user == null)
             {
                 TempData["Error"] = "Користувача не знайдено.";

@@ -1,5 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using DAL.Models;
+﻿using DAL.Models;
+using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Microsoft.Extensions.Options;
 
 namespace DAL
 {
@@ -11,7 +13,14 @@ namespace DAL
         public DbSet<User> Users { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
+            modelBuilder.Entity<News>()
+                .Property(n => n.Date)
+                .HasColumnType("timestamp with time zone");
+        }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+
         }
     }
 }

@@ -1,12 +1,11 @@
 ﻿using BLL.DTO;
-using DAL;
-using DAL.Models;
+
 namespace BLL.Interfaces
 {
     public interface IUserService
     {
-        bool AddUser(UserDTO userDTO);
-        UserDTO FindUserByUsername(string username);
-        bool DeleteUser(UserDTO userDTO);
+        Task<bool> AddUser(UserDTO userDTO);
+        Task<UserDTO?> FindUserByUsername(string? username);
+        Task<bool> DeleteUser(UserDTO userDTO);
     }
 }

@@ -3,37 +3,37 @@ using BLL.DTO;
 using BLL.Interfaces;
 using DAL;
 using DAL.Models;
+using Microsoft.EntityFrameworkCore;
 using System.ComponentModel.DataAnnotations;
 
 namespace BLL.Services
 {
     public class NewsService : INewsService
     {
-        private readonly IMapper mapper;
-        private readonly IRepository<News> repository;
+        private readonly IMapper _mapper;
+        private readonly IRepository<News> _repository;
 
         public NewsService(IMapper mapper, IRepository<News> repository)
         {
-            this.mapper = mapper;
-            this.repository = repository;
+            _mapper = mapper;
+            _repository = repository;
         }
 
-        public bool AddNews(NewsDTO newsDTO)
+        public async Task<bool> AddNews(NewsDTO newsDTO)
         {
-            var news = mapper.Map<News>(newsDTO);
-            news.Date = DateTime.Now;
+            var news = _mapper.Map<News>(newsDTO);
+            news.Date = DateTime.UtcNow;
             news.Views = 0;
 
-            repository.Add(news);
-            repository.SaveChanges();
+            await _repository.Add(news);
+            await _repository.SaveChanges();
 
             return true;
         }
 
-        public bool EditNews(NewsDTO newsDTO, int currentUserId)
+        public async Task<bool> EditNews(NewsDTO newsDTO, int currentUserId)
         {
-            var news = repository.Find(n => n.Id == newsDTO.Id);
-
+            var news = await _repository.Find(n => n.Id == newsDTO.Id);
             if (news == null)
                 throw new Exception("Новину не знайдено");
 
@@ -44,71 +44,83 @@ namespace BLL.Services
             news.Description = newsDTO.Description;
             news.CategoryId = newsDTO.CategoryId;
 
-            repository.Update(news);
-            repository.SaveChanges();
+            await _repository.Update(news);
+            await _repository.SaveChanges();
 
             return true;
         }
 
-        public bool DeleteNews(int newsId, int currentUserId)
+        public async Task<bool> DeleteNews(int newsId, int currentUserId)
         {
-            var news = repository.Find(n => n.Id == newsId);
+            var news = await _repository.Find(n => n.Id == newsId);
             if (news == null)
                 throw new Exception("Новину не знайдено");
 
             if (news.AuthorId != currentUserId)
                 throw new ValidationException("Видаляти може тільки автор");
 
-            repository.Remove(news);
-            repository.SaveChanges();
+            await _repository.Remove(news);
+            await _repository.SaveChanges();
 
             return true;
         }
 
-        public NewsDTO? GetById(int id)
+        public async Task<NewsDTO?> GetById(int id)
         {
-            var news = repository.Find(n => n.Id == id);
-            if (news == null)
-                return null;
+            var news = await _repository.Find(n => n.Id == id);
+            if (news == null) return null;
 
             news.Views++;
-            repository.Update(news);
-            repository.SaveChanges();
+            await _repository.Update(news);
+            await _repository.SaveChanges();
 
-            return mapper.Map<NewsDTO>(news);
+            return _mapper.Map<NewsDTO>(news);
         }
 
-        public List<NewsDTO> GetAll()
+        public async Task<List<NewsDTO>> GetAll()
         {
-            return mapper.Map<List<NewsDTO>>(repository.GetAll());
+            var news = await _repository.GetAll().ToListAsync();
+            return _mapper.Map<List<NewsDTO>>(news);
         }
 
-        public List<NewsDTO> GetByCategory(int categoryId)
+        public async Task<List<NewsDTO>> GetByCategory(int categoryId)
         {
-            var news = repository
-                .GetAll()
-                .Where(n => n.CategoryId == categoryId);
+            var news = await _repository.GetAll()
+                .Include(n => n.Category) 
+                .Include(n => n.Author)
+                .Where(n => n.CategoryId == categoryId)
+                .ToListAsync();
 
-            return mapper.Map<List<NewsDTO>>(news);
+            return _mapper.Map<List<NewsDTO>>(news);
         }
 
-        public List<NewsDTO> GetSortedByDate(bool descending = true)
-        {
-            var news = descending
-                ? repository.GetAll().OrderByDescending(n => n.Date)
-                : repository.GetAll().OrderBy(n => n.Date);
 
-            return mapper.Map<List<NewsDTO>>(news);
+        public async Task<List<NewsDTO>> GetSortedByDate(bool descending = true, int page = 1, int pageSize = 20)
+        {
+            var query = _repository.GetAll()
+                .Include(n => n.Category)
+                .Include(n => n.Author);
+
+            var orderedQuery = descending
+                ? query.OrderByDescending(n => n.Date)
+                : query.OrderBy(n => n.Date);
+
+            var news = await orderedQuery
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return _mapper.Map<List<NewsDTO>>(news);
         }
 
-        public List<NewsDTO> GetPopular(int minViews)
+        public async Task<List<NewsDTO>> GetPopular(int minViews)
         {
-            var news = repository
-                .GetAll()
+            var news = await _repository.GetAll()
                 .Where(n => n.Views >= minViews)
-                .OrderByDescending(n => n.Views);
+                .OrderByDescending(n => n.Views)
+                .ToListAsync();
 
-            return mapper.Map<List<NewsDTO>>(news);
+            return _mapper.Map<List<NewsDTO>>(news);
         }
     }
 }

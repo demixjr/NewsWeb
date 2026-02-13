@@ -15,19 +15,32 @@ namespace NewsWebsite.Pages
 
         public List<NewsDTO> NewsList { get; set; } = new();
 
-        public void OnGet()
+        public async Task OnGetAsync()
         {
-            try { NewsList = _newsService.GetSortedByDate(descending: true); }
-            catch (Exception ex) { TempData["Error"] = ex.Message; }
+            try
+            {
+                NewsList = await _newsService.GetSortedByDate(descending: true);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
         }
 
         public IActionResult OnPostDelete(int id)
         {
             var check = RequireAdminRole();
-            if (check != null) return check;
+            if (check != null)
+                return check;
 
-            try { _newsService.DeleteNews(id, CurrentUserId!.Value); }
-            catch (Exception ex) { TempData["Error"] = ex.Message; }
+            try
+            {
+                _newsService.DeleteNews(id, CurrentUserId!.Value);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+            }
 
             return RedirectToPage();
         }

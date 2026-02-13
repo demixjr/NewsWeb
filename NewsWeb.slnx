@@ -1,5 +1,5 @@
 <Solution>
-  <Project Path="../NewsWebsite/NewsWebsite/NewsWebsite/NewsWebsite.csproj" />
   <Project Path="BLL/BLL.csproj" />
   <Project Path="DAL/DAL.csproj" />
+  <Project Path="NewsWebsite/NewsWebsite.csproj" />
 </Solution>

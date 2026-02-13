@@ -23,48 +23,58 @@ namespace NewsWebsite.Pages.News
 
         public SelectList CategorySelectList { get; set; } = null!;
 
-        public IActionResult OnGet()
+        public async Task<IActionResult> OnGetAsync()
         {
             var check = RequirePublishRole();
             if (check != null) return check;
-            LoadCategories();
+
+            await LoadCategoriesAsync();
             return Page();
         }
 
-        public IActionResult OnPost()
+        public async Task<IActionResult> OnPostAsync()
         {
             var check = RequirePublishRole();
             if (check != null) return check;
 
-            if (!ModelState.IsValid) { LoadCategories(); return Page(); }
+            if (!ModelState.IsValid)
+            {
+                await LoadCategoriesAsync();
+                return Page();
+            }
 
             try
             {
-                _newsService.AddNews(new NewsDTO
+                await _newsService.AddNews(new NewsDTO
                 {
                     Title = Input.Title,
                     Description = Input.Description,
                     CategoryId = Input.CategoryId,
                     AuthorId = CurrentUserId!.Value
                 });
+
                 TempData["Success"] = "Статтю опубліковано!";
                 return RedirectToPage("Index");
             }
             catch (Exception ex)
             {
                 TempData["Error"] = ex.Message;
-                LoadCategories();
+                await LoadCategoriesAsync();
                 return Page();
             }
         }
 
-        private void LoadCategories() =>
-            CategorySelectList = new SelectList(_categoryService.GetAllCategories(), "Id", "Name");
+        private async Task LoadCategoriesAsync()
+        {
+            var categories = await _categoryService.GetAllCategories();
+            CategorySelectList = new SelectList(categories, "Id", "Name");
+        }
 
         public class InputModel
         {
             [Required(ErrorMessage = "Обов'язкове поле")]
-            [StringLength(200)] public string Title { get; set; } = string.Empty;
+            [StringLength(200)]
+            public string Title { get; set; } = string.Empty;
 
             [Required(ErrorMessage = "Обов'язкове поле")]
             public string Description { get; set; } = string.Empty;

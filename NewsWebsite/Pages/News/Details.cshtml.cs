@@ -16,12 +16,15 @@ namespace NewsWebsite.Pages.News
 
         public NewsDTO? NewsItem { get; set; }
 
-        public IActionResult OnGet(int id)
+        // Асинхронний Get
+        public async Task<IActionResult> OnGetAsync(int id)
         {
             try
             {
-                NewsItem = _newsService.GetById(id);
-                if (NewsItem == null) return RedirectToPage("Index");
+                NewsItem = await _newsService.GetById(id);
+                if (NewsItem == null)
+                    return RedirectToPage("Index");
+
                 return Page();
             }
             catch (Exception ex)
@@ -31,13 +34,21 @@ namespace NewsWebsite.Pages.News
             }
         }
 
-        public IActionResult OnPost(int id)
+        // Асинхронний Post для видалення
+        public async Task<IActionResult> OnPostAsync(int id)
         {
             var check = RequireAdminRole();
             if (check != null) return check;
 
-            try { _newsService.DeleteNews(id, CurrentUserId!.Value); }
-            catch (Exception ex) { TempData["Error"] = ex.Message; return RedirectToPage("Details", new { id }); }
+            try
+            {
+                await _newsService.DeleteNews(id, CurrentUserId!.Value);
+            }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToPage("Details", new { id });
+            }
 
             TempData["Success"] = "Статтю видалено.";
             return RedirectToPage("Index");
