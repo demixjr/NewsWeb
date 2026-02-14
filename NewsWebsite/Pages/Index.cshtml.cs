@@ -35,7 +35,7 @@ namespace NewsWebsite.Pages
 
             try
             {
-                _newsService.DeleteNews(id, CurrentUserId!.Value);
+                _newsService.DeleteNews(id);
             }
             catch (Exception ex)
             {

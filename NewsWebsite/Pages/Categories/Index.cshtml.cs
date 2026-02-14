@@ -18,7 +18,6 @@ namespace NewsWebsite.Pages.Categories
         [BindProperty] public InputModel Input { get; set; } = new();
 
         public async Task OnGetAsync() => await LoadAsync();
-
         public async Task<IActionResult> OnPostAsync()
         {
             var check = RequireAdminRole();

@@ -36,7 +36,8 @@ namespace BLL.Services
 
         public async Task<List<CategoryDTO>> GetAllCategories()
         {
-            var categories = await _repository.GetAll().ToListAsync();
+            var categories = await _repository.GetAll().Include(c => c.News).ToListAsync();
+
             return _mapper.Map<List<CategoryDTO>>(categories);
         }
     }

@@ -60,7 +60,7 @@ namespace NewsWebsite.Pages.News
                     Title = Input.Title,
                     Description = Input.Description,
                     CategoryId = Input.CategoryId
-                }, CurrentUserId!.Value);
+                });
 
                 TempData["Success"] = "«м≥ни збережено.";
                 return RedirectToPage("Details", new { id = Input.Id });
