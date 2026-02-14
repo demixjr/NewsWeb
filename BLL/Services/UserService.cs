@@ -25,12 +25,23 @@ namespace BLL.Services
                 throw new ValidationException("Такий користувач вже існує");
 
             var user = _mapper.Map<User>(userDTO);
+            user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(userDTO.Password);
             await _repository.Add(user);
             await _repository.SaveChanges();
 
             return true;
         }
+        public async Task<UserDTO?> Authenticate(string username, string password)
+        {
+            var user = await _repository.GetAll()
+                .FirstOrDefaultAsync(u => u.Username == username);
 
+            if (user == null) return null;
+
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(password, user.PasswordHash);
+
+            return isPasswordValid ? _mapper.Map<UserDTO>(user) : null;
+        }
         public async Task<UserDTO?> FindUserByUsername(string? username)
         {
             var user = await _repository.GetAll()

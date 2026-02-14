@@ -9,7 +9,12 @@ namespace BLL
         public MappingProfile()
         {
 
-            CreateMap<User, UserDTO>().ReverseMap();
+            CreateMap<User, UserDTO>()
+            .ForMember(dest => dest.Password, opt => opt.Ignore());
+
+            CreateMap<UserDTO, User>()
+                .ForMember(dest => dest.PasswordHash, opt => opt.Ignore());
+
             CreateMap<Category, CategoryDTO>().ReverseMap();
             CreateMap<News, NewsDTO>().ReverseMap();
         }

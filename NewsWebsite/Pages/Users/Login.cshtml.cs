@@ -17,16 +17,15 @@ namespace NewsWebsite.Pages.Users
             return Page();
         }
 
-        // Асинхронний Post
         public async Task<IActionResult> OnPostAsync()
         {
             if (!ModelState.IsValid) return Page();
 
-            var user = await _userService.FindUserByUsername(Input.Username);
+            var user = await _userService.Authenticate(Input.Username, Input.Password);
 
             if (user == null)
             {
-                TempData["Error"] = "Користувача не знайдено.";
+                TempData["Error"] = "Невірне ім'я користувача або пароль.";
                 return Page();
             }
 
@@ -38,6 +37,10 @@ namespace NewsWebsite.Pages.Users
         {
             [Required(ErrorMessage = "Введіть ім'я користувача")]
             public string Username { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Введіть пароль")]
+            [DataType(DataType.Password)]
+            public string Password { get; set; } = string.Empty;
         }
     }
 }

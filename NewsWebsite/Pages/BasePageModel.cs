@@ -17,7 +17,7 @@ namespace NewsWebsite.Pages
         public bool IsAuthenticated => CurrentUser != null;
         public bool IsAdmin => CurrentUser?.Role == "Admin";
         public bool IsWriter => CurrentUser?.Role == "Writer";
-        public bool CanPublish => IsAdmin || IsWriter;
+        public bool CanPublish => IsWriter;
         public bool CanEdit => IsAdmin;
         public bool CanDelete => IsAdmin;
 
