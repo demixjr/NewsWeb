@@ -34,11 +34,21 @@ namespace NewsWebsite.Pages.Users
 
             try
             {
-                await _userService.AddUser(new UserDTO { Username = Input.Username, Role = Input.Role });
-                TempData["Success"] = "Реєстрація успішна! Тепер увійдіть.";
+                await _userService.AddUser(new UserDTO
+                {
+                    Username = Input.Username,
+                    Role = Input.Role,
+                    Password = Input.Password 
+                });
+
+                TempData["Success"] = $"Користувача {Input.Username} успішно зареєстровано!";
                 return RedirectToPage("Login");
             }
-            catch (Exception ex) { TempData["Error"] = ex.Message; return Page(); }
+            catch (Exception ex)
+            {
+                TempData["Error"] = ex.Message;
+                return Page();
+            }
         }
 
         public class InputModel
@@ -49,6 +59,15 @@ namespace NewsWebsite.Pages.Users
 
             [Required(ErrorMessage = "Оберіть роль")]
             public string Role { get; set; } = string.Empty;
+
+            [Required(ErrorMessage = "Введіть пароль")]
+            [StringLength(100, MinimumLength = 6, ErrorMessage = "Пароль має бути не менше 6 символів")]
+            [DataType(DataType.Password)]
+            public string Password { get; set; } = string.Empty;
+
+            [DataType(DataType.Password)]
+            [Compare("Password", ErrorMessage = "Паролі не збігаються")]
+            public string ConfirmPassword { get; set; } = string.Empty;
         }
     }
 }
