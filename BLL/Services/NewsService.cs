@@ -37,9 +37,6 @@ namespace BLL.Services
             if (news == null)
                 throw new Exception("Новину не знайдено");
 
-            if (news.AuthorId != currentUserId)
-                throw new ValidationException("Редагувати може тільки автор");
-
             news.Title = newsDTO.Title;
             news.Description = newsDTO.Description;
             news.CategoryId = newsDTO.CategoryId;
@@ -55,9 +52,6 @@ namespace BLL.Services
             var news = await _repository.Find(n => n.Id == newsId);
             if (news == null)
                 throw new Exception("Новину не знайдено");
-
-            if (news.AuthorId != currentUserId)
-                throw new ValidationException("Видаляти може тільки автор");
 
             await _repository.Remove(news);
             await _repository.SaveChanges();
