@@ -12,7 +12,6 @@ namespace BLL.Services
     {
         private readonly IMapper _mapper;
         private readonly IRepository<News> _repository;
-
         public NewsService(IMapper mapper, IRepository<News> repository)
         {
             _mapper = mapper;
@@ -31,7 +30,7 @@ namespace BLL.Services
             return true;
         }
 
-        public async Task<bool> EditNews(NewsDTO newsDTO, int currentUserId)
+        public async Task<bool> EditNews(NewsDTO newsDTO)
         {
             var news = await _repository.Find(n => n.Id == newsDTO.Id);
             if (news == null)
@@ -47,7 +46,7 @@ namespace BLL.Services
             return true;
         }
 
-        public async Task<bool> DeleteNews(int newsId, int currentUserId)
+        public async Task<bool> DeleteNews(int newsId)
         {
             var news = await _repository.Find(n => n.Id == newsId);
             if (news == null)

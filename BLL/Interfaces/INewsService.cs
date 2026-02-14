@@ -5,8 +5,8 @@ namespace BLL.Interfaces
     public interface INewsService
     {
         Task<bool> AddNews(NewsDTO newsDTO);
-        Task<bool> EditNews(NewsDTO newsDTO, int currentUserId);
-        Task<bool> DeleteNews(int newsId, int currentUserId);
+        Task<bool> EditNews(NewsDTO newsDTO);
+        Task<bool> DeleteNews(int newsId);
 
         Task<NewsDTO?> GetById(int id);
         Task<List<NewsDTO>> GetAll();
