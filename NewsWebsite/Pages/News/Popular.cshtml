@@ -1,0 +1,85 @@
+﻿@page
+@model NewsWebsite.Pages.News.PopularModel
+@{
+    ViewData["Title"] = "Популярні новини";
+    ViewData["ActiveCategory"] = null;
+}
+
+<div class="page-header">
+    <h1>Популярні новини</h1>
+    @if (Model.CanPublish)
+    {
+        <a asp-page="Create" class="btn btn-primary btn-small">+ Нова стаття</a>
+    }
+</div>
+
+<div style="margin-bottom: 1.5rem;">
+    <form method="get" style="display: flex; align-items: center; gap: 1rem;">
+        <label for="minViews" class="form-label" style="margin: 0;">Мінімум переглядів:</label>
+        <input type="number"
+               name="minViews"
+               id="minViews"
+               value="@Model.MinViews"
+               min="1"
+               class="form-control"
+               style="width: 120px;" />
+        <button type="submit" class="btn btn-ghost btn-small">Застосувати</button>
+    </form>
+</div>
+
+@if (Model.NewsList.Any())
+{
+    <div class="news-list">
+        @foreach (var news in Model.NewsList)
+        {
+            <article class="news-item">
+                <div class="news-item__title">
+                    <a asp-page="Details" asp-route-id="@news.Id">@news.Title</a>
+                </div>
+                <div class="news-item__meta">
+                    <a asp-page="/News/Index" asp-route-categoryId="@news.CategoryId"
+                       class="news-item__cat">@news.Category?.Name</a>
+                    <span class="news-item__views">&#128065; @news.Views</span>
+                    <span class="news-item__meta-sep">|</span>
+                    <span>@news.Date.ToString("dd.MM.yyyy")</span>
+                    <span class="news-item__meta-sep">|</span>
+                    <span>@news.Author?.Username</span>
+                </div>
+                <div class="news-item__actions">
+                    @if (Model.CanEdit)
+                    {
+                        <a asp-page="Edit" asp-route-id="@news.Id" class="btn btn-ghost btn-small">Ред.</a>
+                    }
+                    @if (Model.CanDelete)
+                    {
+                        <button class="btn btn-danger btn-small" data-modal-open="del-@news.Id">Вид.</button>
+                    }
+                </div>
+            </article>
+
+            @if (Model.CanDelete)
+            {
+                <div class="modal-overlay" id="del-@news.Id">
+                    <div class="modal-box">
+                        <div class="modal-title">Видалити статтю?</div>
+                        <div class="modal-body">«@news.Title» — цю дію неможливо скасувати.</div>
+                        <div class="modal-actions">
+                            <button class="btn btn-ghost" data-modal-close>Скасувати</button>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@news.Id">
+                                <button type="submit" class="btn btn-danger">Видалити</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+    </div>
+}
+else
+{
+    <div class="empty-state">
+        <div class="empty-state__icon">&#128200;</div>
+        <div class="empty-state__title">Популярних новин з такою кількістю переглядів не знайдено</div>
+        <p style="margin-top: 0.5rem; color: #666;">Спробуйте зменшити мінімальну кількість переглядів</p>
+    </div>
+}
