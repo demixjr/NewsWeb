@@ -2,50 +2,44 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewsWebsite.Helpers;
+using PL.Helpers;
 
 namespace NewsWebsite.Pages
 {
+    /// <summary>
+    /// Базова сторінка. Делегує роботу з сесією до SessionUserHelper,
+    /// перевірку ролей — до RolePolicy.
+    /// </summary>
     public class BasePageModel : PageModel
     {
         protected UserDTO? CurrentUser
         {
-            get => HttpContext.Session.GetObject<UserDTO>("CurrentUser");
-            set => HttpContext.Session.SetObject("CurrentUser", value);
+            get => SessionUserHelper.GetCurrentUser(HttpContext.Session);
+            set => SessionUserHelper.SetCurrentUser(HttpContext.Session, value);
         }
 
         public int? CurrentUserId => CurrentUser?.Id;
         public bool IsAuthenticated => CurrentUser != null;
-        public bool IsAdmin => CurrentUser?.Role == "Admin";
-        public bool IsWriter => CurrentUser?.Role == "Writer";
-        public bool CanPublish => IsWriter;
-        public bool CanEdit => IsAdmin;
-        public bool CanDelete => IsAdmin;
+        public bool IsAdmin => RolePolicy.IsAdmin(CurrentUser?.Role);
+        public bool IsWriter => RolePolicy.IsWriter(CurrentUser?.Role);
+        public bool CanPublish => RolePolicy.CanPublish(CurrentUser?.Role);
+        public bool CanEdit => RolePolicy.CanEdit(CurrentUser?.Role);
+        public bool CanDelete => RolePolicy.CanDelete(CurrentUser?.Role);
 
-        protected IActionResult RedirectToLoginIfNotAuthenticated()
-        {
-            if (!IsAuthenticated)
-                return RedirectToPage("/Users/Login");
-            return null!;
-        }
+        protected IActionResult? RedirectToLoginIfNotAuthenticated()
+            => IsAuthenticated ? null : RedirectToPage("/Users/Login");
 
-        protected IActionResult RequirePublishRole()
-        {
-            if (!CanPublish)
-            {
-                TempData["Error"] = "Потрібна роль Writer або Admin.";
-                return RedirectToPage("/Index");
-            }
-            return null!;
-        }
+        protected IActionResult? RequirePublishRole()
+            => GuardRole(CanPublish, "Потрібна роль Writer або Admin.");
 
-        protected IActionResult RequireAdminRole()
+        protected IActionResult? RequireAdminRole()
+            => GuardRole(IsAdmin, "Потрібна роль Admin.");
+
+        private IActionResult? GuardRole(bool allowed, string errorMessage)
         {
-            if (!IsAdmin)
-            {
-                TempData["Error"] = "Потрібна роль Admin.";
-                return RedirectToPage("/Index");
-            }
-            return null!;
+            if (allowed) return null;
+            FlashMessageHelper.SetError(TempData, errorMessage);
+            return RedirectToPage("/Index");
         }
     }
 }

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NewsWebsite.Pages;
 using System.ComponentModel.DataAnnotations;
+using PL.Models;
 
 namespace NewsWebsite.Pages.News
 {
@@ -23,19 +24,15 @@ namespace NewsWebsite.Pages.News
 
         public async Task<IActionResult> OnGetAsync(int id)
         {
-            var check = RequireAdminRole();
-            if (check != null) return check;
-
             var news = await _newsService.GetById(id);
-            if (news == null) return RedirectToPage("Index");
 
             Input = new InputModel
             {
                 Id = news.Id,
-                Title = news.Title ?? string.Empty,
-                Description = news.Description ?? string.Empty,
+                Title = news.Title,
+                Description = news.Description,
                 CategoryId = news.CategoryId
-            };
+            }; 
 
             await LoadCategoriesAsync();
             return Page();
@@ -43,8 +40,6 @@ namespace NewsWebsite.Pages.News
 
         public async Task<IActionResult> OnPostAsync()
         {
-            var check = RequireAdminRole();
-            if (check != null) return check;
 
             if (!ModelState.IsValid)
             {
@@ -77,21 +72,6 @@ namespace NewsWebsite.Pages.News
         {
             var categories = await _categoryService.GetAllCategories();
             CategorySelectList = new SelectList(categories, "Id", "Name", Input.CategoryId);
-        }
-
-        public class InputModel
-        {
-            public int Id { get; set; }
-
-            [Required(ErrorMessage = "Обов'язкове поле")]
-            [StringLength(200)]
-            public string Title { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Обов'язкове поле")]
-            public string Description { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Оберіть категорію")]
-            public int CategoryId { get; set; }
         }
     }
 }

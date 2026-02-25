@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using PL.Helpers;
 
 namespace NewsWebsite.Pages.Users
 {
@@ -6,7 +7,7 @@ namespace NewsWebsite.Pages.Users
     {
         public IActionResult OnGet()
         {
-            HttpContext.Session.Clear();
+            SessionUserHelper.ClearCurrentUser(HttpContext.Session);
             return RedirectToPage("/Index");
         }
     }
