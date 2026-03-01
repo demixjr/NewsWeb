@@ -6,24 +6,7 @@
 <div class="form-card">
     <div class="form-card__header">Нова стаття</div>
     <form method="post">
-        <div class="form-group">
-            <label asp-for="Input.Title" class="form-label" for="Input_Title">Заголовок</label>
-            <input asp-for="Input.Title" class="form-control" placeholder="Заголовок статті" id="Input_Title" />
-            <span asp-validation-for="Input.Title" class="form-error"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Input.CategoryId" class="form-label" for="Input_CategoryId">Категорія</label>
-            <select asp-for="Input.CategoryId" class="form-control" asp-items="Model.CategorySelectList" id="Input_CategoryId">
-                <option value="">— Оберіть категорію —</option>
-            </select>
-            <span asp-validation-for="Input.CategoryId" class="form-error"></span>
-        </div>
-        <div class="form-group">
-            <label asp-for="Input.Description" class="form-label" for="Input_Description">Текст статті</label>
-            <textarea asp-for="Input.Description" class="form-control" rows="12"
-                      placeholder="Текст статті..." id="Input_Description"></textarea>
-            <span asp-validation-for="Input.Description" class="form-error"></span>
-        </div>
+        <partial name="_NewsFormFields" />
         <div class="form-actions">
             <button type="submit" class="btn btn-primary">Опублікувати</button>
             <a asp-page="Index" class="btn btn-ghost">Скасувати</a>

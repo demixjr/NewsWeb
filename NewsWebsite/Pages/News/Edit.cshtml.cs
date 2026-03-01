@@ -71,7 +71,8 @@ namespace NewsWebsite.Pages.News
         private async Task LoadCategoriesAsync()
         {
             var categories = await _categoryService.GetAllCategories();
-            CategorySelectList = new SelectList(categories, "Id", "Name", Input.CategoryId);
+            CategorySelectList = new SelectList(categories, "Id", "Name");
+            ViewData["CategorySelectList"] = CategorySelectList;
         }
     }
 }

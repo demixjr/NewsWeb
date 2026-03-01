@@ -3,7 +3,7 @@ using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using NewsWebsite.Pages;
-using System.ComponentModel.DataAnnotations;
+using PL.Models;
 
 namespace NewsWebsite.Pages.News
 {
@@ -20,14 +20,12 @@ namespace NewsWebsite.Pages.News
 
         [BindProperty]
         public InputModel Input { get; set; } = new();
-
         public SelectList CategorySelectList { get; set; } = null!;
 
         public async Task<IActionResult> OnGetAsync()
         {
             var check = RequirePublishRole();
             if (check != null) return check;
-
             await LoadCategoriesAsync();
             return Page();
         }
@@ -36,13 +34,11 @@ namespace NewsWebsite.Pages.News
         {
             var check = RequirePublishRole();
             if (check != null) return check;
-
             if (!ModelState.IsValid)
             {
                 await LoadCategoriesAsync();
                 return Page();
             }
-
             try
             {
                 await _newsService.AddNews(new NewsDTO
@@ -52,7 +48,6 @@ namespace NewsWebsite.Pages.News
                     CategoryId = Input.CategoryId,
                     AuthorId = CurrentUserId!.Value
                 });
-
                 TempData["Success"] = "Статтю опубліковано!";
                 return RedirectToPage("Index");
             }
@@ -68,19 +63,7 @@ namespace NewsWebsite.Pages.News
         {
             var categories = await _categoryService.GetAllCategories();
             CategorySelectList = new SelectList(categories, "Id", "Name");
-        }
-
-        public class InputModel
-        {
-            [Required(ErrorMessage = "Обов'язкове поле")]
-            [StringLength(200)]
-            public string Title { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Обов'язкове поле")]
-            public string Description { get; set; } = string.Empty;
-
-            [Required(ErrorMessage = "Оберіть категорію")]
-            public int CategoryId { get; set; }
+            ViewData["CategorySelectList"] = CategorySelectList;
         }
     }
 }

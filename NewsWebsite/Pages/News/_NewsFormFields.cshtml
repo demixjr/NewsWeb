@@ -1,0 +1,24 @@
+﻿@using PL.Models
+@using Microsoft.AspNetCore.Mvc.Rendering
+@model InputModel
+
+<div class="form-group">
+    <label asp-for="Title" class="form-label" for="Title">Заголовок</label>
+    <input asp-for="Title" class="form-control" id="Title" />
+    <span asp-validation-for="Title" class="form-error"></span>
+</div>
+<div class="form-group">
+    <label asp-for="CategoryId" class="form-label" for="CategoryId">Категорія</label>
+    @{
+        var categoryList = (SelectList)ViewData["CategorySelectList"]!;
+    }
+    <select asp-for="CategoryId" class="form-control" asp-items="categoryList" id="CategoryId">
+        <option value="">— Оберіть категорію —</option>
+    </select>
+    <span asp-validation-for="CategoryId" class="form-error"></span>
+</div>
+<div class="form-group">
+    <label asp-for="Description" class="form-label" for="Description">Текст статті</label>
+    <textarea asp-for="Description" class="form-control" rows="12" id="Description"></textarea>
+    <span asp-validation-for="Description" class="form-error"></span>
+</div>
