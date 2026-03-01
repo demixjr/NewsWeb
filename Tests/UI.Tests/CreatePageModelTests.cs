@@ -7,6 +7,7 @@ using Moq;
 using NewsWebsite.Pages.News;
 using UI.Tests.Helpers;
 using Xunit;
+using PL.Models;
 
 namespace UI.Tests.Pages.News
 {
@@ -134,7 +135,7 @@ namespace UI.Tests.Pages.News
             var writer = PageModelTestHelper.CreateWriter(id: 42);
             var pageModel = CreatePageModel(writer);
 
-            pageModel.Input = new CreateModel.InputModel
+            pageModel.Input = new InputModel
             {
                 Title = "Тестова новина",
                 Description = "Опис новини",
@@ -175,7 +176,7 @@ namespace UI.Tests.Pages.News
             var writer = PageModelTestHelper.CreateWriter();
             var pageModel = CreatePageModel(writer);
 
-            pageModel.Input = new CreateModel.InputModel
+            pageModel.Input = new InputModel
             {
                 Title = "Тестова новина",
                 Description = "Опис",
@@ -202,7 +203,7 @@ namespace UI.Tests.Pages.News
             var writer = PageModelTestHelper.CreateWriter(id: 99);
             var pageModel = CreatePageModel(writer);
 
-            pageModel.Input = new CreateModel.InputModel
+            pageModel.Input = new InputModel
             {
                 Title = "Новина",
                 Description = "Опис",
