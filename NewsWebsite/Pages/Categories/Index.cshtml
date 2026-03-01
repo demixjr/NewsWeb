@@ -29,8 +29,8 @@
             <div class="modal-title">Нова категорія</div>
             <form method="post">
                 <div class="form-group">
-                    <label asp-for="Input.Name" class="form-label">Назва</label>
-                    <input asp-for="Input.Name" class="form-control" placeholder="Назва категорії" />
+                    <label asp-for="Input.Name" class="form-label" for="Input_Name">Назва</label>
+                    <input asp-for="Input.Name" class="form-control" placeholder="Назва категорії" id="Input_Name" />
                     <span asp-validation-for="Input.Name" class="form-error"></span>
                 </div>
                 <div class="modal-actions" style="margin-top:1rem">

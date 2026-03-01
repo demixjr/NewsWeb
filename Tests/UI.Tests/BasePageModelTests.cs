@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using NewsWebsite.Pages;
+using System.ComponentModel.DataAnnotations;
 using UI.Tests.Helpers;
 using Xunit;
 
