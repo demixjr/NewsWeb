@@ -3,10 +3,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using UI.Tests.Helpers;
-using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace UI.Tests.Helpers
 {
@@ -43,23 +44,38 @@ namespace UI.Tests.Helpers
         /// <summary>
         /// Налаштовує PageModel з Session та TempData
         /// </summary>
+        public static void SetupPageModel(PageModel pageModel, UserDTO? currentUser = null)
+        {
+            var httpContext = new DefaultHttpContext();
+            httpContext.RequestServices = new ServiceCollection()
+                .AddDistributedMemoryCache()
+                .AddSession()
+                .BuildServiceProvider();
 
-public static void SetupPageModel(PageModel pageModel, UserDTO? currentUser = null)
-    {
-        var (pageContext, tempData, _) = CreatePageContext(currentUser);
+            var session = new TestSession();
+            httpContext.Session = session;
 
-            pageContext.ActionDescriptor = new CompiledPageActionDescriptor();
+            if (currentUser != null)
+            {
+                session.SetObject("CurrentUser", currentUser);
+            }
 
-            pageModel.PageContext = pageContext;
-        pageModel.TempData = tempData;
-        pageModel.MetadataProvider = new EmptyModelMetadataProvider();
-        pageModel.ModelState.Clear();
-    }
+            var tempData = new TempDataDictionary(httpContext, Mock.Of<ITempDataProvider>());
 
-    /// <summary>
-    /// Створює Writer користувача для тестів
-    /// </summary>
-    public static UserDTO CreateWriter(int id = 1, string username = "writer")
+            pageModel.PageContext = new PageContext
+            {
+                HttpContext = httpContext,
+                ActionDescriptor = new CompiledPageActionDescriptor()
+            };
+
+            pageModel.TempData = tempData;
+            pageModel.MetadataProvider = new EmptyModelMetadataProvider();
+        }
+
+        /// <summary>
+        /// Створює Writer користувача для тестів
+        /// </summary>
+        public static UserDTO CreateWriter(int id = 1, string username = "writer")
         {
             return new UserDTO
             {

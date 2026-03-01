@@ -1,4 +1,5 @@
 ﻿using BLL.DTO;
+using BLL.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using NewsWebsite.Helpers;
@@ -40,6 +41,16 @@ namespace NewsWebsite.Pages
             if (allowed) return null;
             FlashMessageHelper.SetError(TempData, errorMessage);
             return RedirectToPage("/Index");
+        }
+        protected async Task<IActionResult> HandleDeleteNewsAsync(INewsService newsService, int id)
+        {
+            var check = RequireAdminRole();
+            if (check != null) return check;
+
+            try { await newsService.DeleteNews(id); }
+            catch (Exception ex) { FlashMessageHelper.SetError(TempData, ex); }
+
+            return RedirectToPage();
         }
     }
 }

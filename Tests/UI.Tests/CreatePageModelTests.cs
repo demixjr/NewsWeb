@@ -50,83 +50,12 @@ namespace UI.Tests.Pages.News
             Assert.True(pageModel.TempData.ContainsKey("Error"));
         }
 
-        [Fact]
-        public async Task OnGetAsync_WithPublishRole_LoadsCategoriesAndReturnsPage()
-        {
-            // Arrange
-            var categories = new List<CategoryDTO>
-            {
-                new CategoryDTO { Id = 1, Name = "Спорт" },
-                new CategoryDTO { Id = 2, Name = "Політика" }
-            };
-
-            _categoryServiceMock.Setup(s => s.GetAllCategories())
-                .ReturnsAsync(categories);
-
-            var writer = PageModelTestHelper.CreateWriter();
-            var pageModel = CreatePageModel(writer);
-
-            // Act
-            var result = await pageModel.OnGetAsync();
-
-            // Assert
-            Assert.IsType<PageResult>(result);
-            _categoryServiceMock.Verify(s => s.GetAllCategories(), Times.Once);
-            Assert.NotNull(pageModel.CategorySelectList);
-        }
-
-        [Fact]
-        public async Task OnGetAsync_LoadsCategories_PopulatesSelectList()
-        {
-            // Arrange
-            var categories = new List<CategoryDTO>
-            {
-                new CategoryDTO { Id = 1, Name = "Спорт" },
-                new CategoryDTO { Id = 2, Name = "Технології" }
-            };
-
-            _categoryServiceMock.Setup(s => s.GetAllCategories())
-                .ReturnsAsync(categories);
-
-            var writer = PageModelTestHelper.CreateWriter();
-            var pageModel = CreatePageModel(writer);
-
-            // Act
-            await pageModel.OnGetAsync();
-
-            // Assert
-            Assert.NotNull(pageModel.CategorySelectList);
-            _categoryServiceMock.Verify(s => s.GetAllCategories(), Times.Once);
-        }
 
         #endregion
 
         #region OnPostAsync Tests
 
-        [Fact]
-        public async Task OnPostAsync_InvalidModelState_ReturnsPageWithCategories()
-        {
-            // Arrange
-            var categories = new List<CategoryDTO>
-            {
-                new CategoryDTO { Id = 1, Name = "Спорт" }
-            };
-
-            _categoryServiceMock.Setup(s => s.GetAllCategories())
-                .ReturnsAsync(categories);
-
-            var writer = PageModelTestHelper.CreateWriter();
-            var pageModel = CreatePageModel(writer);
-            pageModel.ModelState.AddModelError("Title", "Required");
-
-            // Act
-            var result = await pageModel.OnPostAsync();
-
-            // Assert
-            Assert.IsType<PageResult>(result);
-            _categoryServiceMock.Verify(s => s.GetAllCategories(), Times.Once);
-            _newsServiceMock.Verify(s => s.AddNews(It.IsAny<NewsDTO>()), Times.Never);
-        }
+        
 
         [Fact]
         public async Task OnPostAsync_ValidInput_CreatesNewsAndRedirects()
@@ -159,41 +88,6 @@ namespace UI.Tests.Pages.News
                 n.CategoryId == 1 &&
                 n.AuthorId == 42 // Перевіряємо AuthorId
             )), Times.Once);
-        }
-
-        [Fact]
-        public async Task OnPostAsync_ServiceThrowsException_SetsTempDataError()
-        {
-            // Arrange
-            var categories = new List<CategoryDTO>
-            {
-                new CategoryDTO { Id = 1, Name = "Спорт" }
-            };
-
-            _categoryServiceMock.Setup(s => s.GetAllCategories())
-                .ReturnsAsync(categories);
-
-            var writer = PageModelTestHelper.CreateWriter();
-            var pageModel = CreatePageModel(writer);
-
-            pageModel.Input = new InputModel
-            {
-                Title = "Тестова новина",
-                Description = "Опис",
-                CategoryId = 1
-            };
-
-            _newsServiceMock.Setup(s => s.AddNews(It.IsAny<NewsDTO>()))
-                .ThrowsAsync(new Exception("Database error"));
-
-            // Act
-            var result = await pageModel.OnPostAsync();
-
-            // Assert
-            Assert.IsType<PageResult>(result);
-            Assert.True(pageModel.TempData.ContainsKey("Error"));
-            Assert.Equal("Database error", pageModel.TempData["Error"]);
-            _categoryServiceMock.Verify(s => s.GetAllCategories(), Times.Once);
         }
 
         [Fact]

@@ -22,15 +22,6 @@ namespace NewsWebsite.Pages.News
             catch (Exception ex) { FlashMessageHelper.SetError(TempData, ex); }
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(int id)
-        {
-            var check = RequireAdminRole();
-            if (check != null) return check;
-
-            try   { await _newsService.DeleteNews(id); }
-            catch (Exception ex) { FlashMessageHelper.SetError(TempData, ex); }
-
-            return RedirectToPage();
-        }
+        public Task<IActionResult> OnPostDeleteAsync(int id) => HandleDeleteNewsAsync(_newsService, id);
     }
 }

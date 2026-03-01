@@ -1,0 +1,43 @@
+﻿@using NewsWebsite.Models
+@using BLL.DTO
+@model NewsItemViewModel
+
+<article class="news-item">
+    <div class="news-item__title">
+        <a asp-page="Details" asp-route-id="@Model.News.Id">@Model.News.Title</a>
+    </div>
+    <div class="news-item__meta">
+        <a asp-page="/News/Index" asp-route-categoryId="@Model.News.CategoryId"
+           class="news-item__cat">@Model.News.Category?.Name</a>
+        <span class="news-item__views">&#128065; @Model.News.Views</span>
+        <span class="news-item__meta-sep">|</span>
+        <span>@Model.News.Date.ToString("dd.MM.yyyy")</span>
+        <span class="news-item__meta-sep">|</span>
+        <span>@Model.News.Author?.Username</span>
+    </div>
+    <div class="news-item__actions">
+        @if (Model.CanEdit)
+        {
+            <a asp-page="Edit" asp-route-id="@Model.News.Id" class="btn btn-ghost btn-small">Ред.</a>
+        }
+        @if (Model.CanDelete)
+        {
+            <button class="btn btn-danger btn-small" data-modal-open="del-@Model.News.Id">Вид.</button>
+        }
+    </div>
+</article>
+@if (Model.CanDelete)
+{
+    <div class="modal-overlay" id="del-@Model.News.Id">
+        <div class="modal-box">
+            <div class="modal-title">Видалити статтю?</div>
+            <div class="modal-body">«@Model.News.Title» — цю дію неможливо скасувати.</div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost" data-modal-close>Скасувати</button>
+                <form method="post" asp-page-handler="Delete" asp-route-id="@Model.News.Id">
+                    <button type="submit" class="btn btn-danger">Видалити</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}

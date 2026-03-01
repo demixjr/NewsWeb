@@ -48,21 +48,6 @@ namespace NewsWebsite.Pages.News
             }
         }
 
-        public async Task<IActionResult> OnPostDeleteAsync(int id)
-        {
-            var check = RequireAdminRole();
-            if (check != null) return check;
-
-            try
-            {
-                await _newsService.DeleteNews(id);
-            }
-            catch (Exception ex)
-            {
-                TempData["Error"] = ex.Message;
-            }
-
-            return RedirectToPage();
-        }
+        public Task<IActionResult> OnPostDeleteAsync(int id) => HandleDeleteNewsAsync(_newsService, id);
     }
 }
