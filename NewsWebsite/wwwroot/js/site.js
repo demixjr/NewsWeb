@@ -15,8 +15,8 @@ document.addEventListener('DOMContentLoaded', function () {
     // Модальні вікна
     document.querySelectorAll('[data-modal-open]').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            var id = btn.getAttribute('data-modal-open');
-            var modal = document.getElementById(id);
+            const id = btn.dataset.modalOpen;
+            const modal = document.getElementById(id);
             if (modal) modal.classList.add('is-open');
         });
     });
