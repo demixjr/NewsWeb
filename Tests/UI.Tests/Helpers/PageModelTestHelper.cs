@@ -1,9 +1,12 @@
 using BLL.DTO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc.RazorPages.Infrastructure;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Moq;
 using UI.Tests.Helpers;
+using Microsoft.AspNetCore.Mvc.Routing;
 
 namespace UI.Tests.Helpers
 {
@@ -40,18 +43,23 @@ namespace UI.Tests.Helpers
         /// <summary>
         /// Налаштовує PageModel з Session та TempData
         /// </summary>
-        public static void SetupPageModel(PageModel pageModel, UserDTO? currentUser = null)
-        {
-            var (pageContext, tempData, _) = CreatePageContext(currentUser);
-            
-            pageModel.PageContext = pageContext;
-            pageModel.TempData = tempData;
-        }
 
-        /// <summary>
-        /// Створює Writer користувача для тестів
-        /// </summary>
-        public static UserDTO CreateWriter(int id = 1, string username = "writer")
+public static void SetupPageModel(PageModel pageModel, UserDTO? currentUser = null)
+    {
+        var (pageContext, tempData, _) = CreatePageContext(currentUser);
+
+            pageContext.ActionDescriptor = new CompiledPageActionDescriptor();
+
+            pageModel.PageContext = pageContext;
+        pageModel.TempData = tempData;
+        pageModel.MetadataProvider = new EmptyModelMetadataProvider();
+        pageModel.ModelState.Clear();
+    }
+
+    /// <summary>
+    /// Створює Writer користувача для тестів
+    /// </summary>
+    public static UserDTO CreateWriter(int id = 1, string username = "writer")
         {
             return new UserDTO
             {
