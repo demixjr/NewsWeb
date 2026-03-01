@@ -324,8 +324,11 @@ namespace Tests.DAL.Tests
         [Fact]
         public async Task SaveChanges_WithoutChanges_DoesNotThrow()
         {
-            // Act & Assert
-            await _categoryRepository.SaveChanges();
+            // Act
+            var exception = await Record.ExceptionAsync(() => _categoryRepository.SaveChanges());
+
+            // Assert
+            Assert.Null(exception);
         }
 
         [Fact]
