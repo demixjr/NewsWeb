@@ -21,6 +21,7 @@ namespace NewsWebsite.Pages
 
         public void OnGet()
         {
+            _logger.LogInformation("Error page accessed. RequestId: {RequestId}", RequestId);
             RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier;
         }
     }
