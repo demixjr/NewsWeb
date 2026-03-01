@@ -20,7 +20,7 @@ namespace DAL
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            throw new NotSupportedException("Use dependency injection to configure the DbContext.");
+            // Intentionally left empty. Configuration is handled via dependency injection.
         }
     }
 }
