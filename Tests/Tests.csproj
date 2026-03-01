@@ -33,8 +33,4 @@
     <ProjectReference Include="..\NewsWebsite\PL.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="UI.Tests\" />
-  </ItemGroup>
-
 </Project>

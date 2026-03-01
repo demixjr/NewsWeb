@@ -46,6 +46,7 @@ namespace UI.Tests.Helpers
         {
             return _sessionStorage.TryGetValue(key, out value);
         }
+
     }
 
     /// <summary>
@@ -69,5 +70,6 @@ namespace UI.Tests.Helpers
             }
             return default;
         }
+
     }
 }
