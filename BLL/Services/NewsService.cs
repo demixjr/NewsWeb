@@ -115,5 +115,10 @@ namespace BLL.Services
 
             return _mapper.Map<List<NewsDTO>>(news);
         }
+
+        public async Task<int> GetTotalCount()
+        {
+            return await _repository.GetAll().CountAsync();
+        }
     }
 }
